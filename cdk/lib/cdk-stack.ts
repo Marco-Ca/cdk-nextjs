@@ -6,10 +6,14 @@ import * as iam from '@aws-cdk/aws-iam';
 export class AmplifyStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
+
+    // Make sure you have a GithubTokenAmplify on your secrets manager and it should be of type 'plain text'
     const token = cdk.SecretValue.secretsManager('GithubTokenAmplify')
     const sourceCodeProvider = new amplify.GitHubSourceCodeProvider({
-      owner: 'Marco-Ca',
-      repository: 'cdk-nextjs',
+      // Github account name
+      owner: '<GithubAccountName>',
+      // Github repo name
+      repository: '<GithubRepoName>',
       oauthToken: token
     });
     const buildSpec = codebuild.BuildSpec.fromObjectToYaml(
@@ -62,7 +66,7 @@ export class AmplifyStack extends cdk.Stack {
       buildSpec: buildSpec,
       role: role
     });
-
+    // branch of the repo
     amplifyApp.addBranch('master');
   }
 }
