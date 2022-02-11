@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as amplify from '@aws-cdk/aws-amplify';
-import codebuild = require('@aws-cdk/aws-codebuild');
+import * as codebuild from '@aws-cdk/aws-codebuild';
 
 export class AmplifyStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
@@ -45,9 +45,11 @@ export class AmplifyStack extends cdk.Stack {
         ]
       }
     );
-    new amplify.App(this, "cdk-next-app", {
+    const amplifyApp = new amplify.App(this, "cdk-next-app", {
       sourceCodeProvider: sourceCodeProvider,
       buildSpec: buildSpec
     });
+
+    amplifyApp.addBranch('master');
   }
 }
