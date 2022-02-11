@@ -20,7 +20,8 @@ export class AmplifyStack extends cdk.Stack {
               phases: {
                 preBuild: {
                   commands: [
-                    "npm install"
+                    "npm install",
+                    "cd cdk && npm install"
                   ]
                 },
                 build: {
