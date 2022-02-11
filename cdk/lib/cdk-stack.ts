@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as amplify from '@aws-cdk/aws-amplify';
 import * as codebuild from '@aws-cdk/aws-codebuild';
+import * as iam from '@aws-cdk/aws-iam';
 
 export class AmplifyStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
@@ -21,7 +22,6 @@ export class AmplifyStack extends cdk.Stack {
                 preBuild: {
                   commands: [
                     "npm install",
-                    "cd cdk && npm install"
                   ]
                 },
                 build: {
@@ -46,9 +46,20 @@ export class AmplifyStack extends cdk.Stack {
         ]
       }
     );
+
+    const role = new iam.Role(this, 'MyRole', {
+      assumedBy: new iam.ServicePrincipal('amplify.amazonaws.com'),
+    });
+    const iManagedPolicy = iam.ManagedPolicy.fromAwsManagedPolicyName(
+      'AdministratorAccess',
+    );
+
+    role.addManagedPolicy(iManagedPolicy)
+
     const amplifyApp = new amplify.App(this, "cdk-next-app", {
       sourceCodeProvider: sourceCodeProvider,
-      buildSpec: buildSpec
+      buildSpec: buildSpec,
+      role: role
     });
 
     amplifyApp.addBranch('master');
