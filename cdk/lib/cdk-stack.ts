@@ -1,10 +1,11 @@
-import * as cdk from '@aws-cdk/core';
-import * as amplify from '@aws-cdk/aws-amplify';
-import * as codebuild from '@aws-cdk/aws-codebuild';
-import * as iam from '@aws-cdk/aws-iam';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as amplify from '@aws-cdk/aws-amplify-alpha';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class AmplifyStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: cdk.StackProps) {
     super(scope, id, props);
 
     // Make sure you have a GithubTokenAmplify on your secrets manager and it should be of type 'plain text'
@@ -16,38 +17,32 @@ export class AmplifyStack extends cdk.Stack {
       repository: '<GithubRepoName>',
       oauthToken: token
     });
-    const buildSpec = codebuild.BuildSpec.fromObjectToYaml(
+    const buildSpec = codebuild.BuildSpec.fromObject(
       {
-        version: 1,
-        applications: [
-          {
-            frontend: {
-              phases: {
-                preBuild: {
-                  commands: [
-                    "npm install",
-                  ]
-                },
-                build: {
-                  commands: [
-                    "npm run build"
-                  ]
-                }
-              },
-              artifacts: {
-                baseDirectory: ".next",
-                files: [
-                  "**/*"
-                ]
-              },
-              cache: {
-                paths: [
-                  "node_modules/**/*"
-                ]
-              }
-            }
+        version: '0.2',
+        phases: {
+          preBuild: {
+            commands: [
+              "npm install",
+            ]
+          },
+          build: {
+            commands: [
+              "npm run build"
+            ]
           }
-        ]
+        },
+        artifacts: {
+          baseDirectory: ".next",
+          files: [
+            "**/*"
+          ]
+        },
+        cache: {
+          paths: [
+            "node_modules/**/*"
+          ]
+        }
       }
     );
 
@@ -60,7 +55,7 @@ export class AmplifyStack extends cdk.Stack {
     );
 
     role.addManagedPolicy(managedPolicy)
-    
+
     const amplifyApp = new amplify.App(this, "cdk-next-app", {
       sourceCodeProvider: sourceCodeProvider,
       buildSpec: buildSpec,
